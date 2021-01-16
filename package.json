@@ -1,0 +1,16 @@
+{
+  "name": "jj-helper-discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dmytro Hoi",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "pino": "^6.11.0",
+    "pino-pretty": "^4.3.0"
+  }
+}
