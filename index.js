@@ -1,7 +1,18 @@
 const Discord = require("discord.js");
 const config = require("./config.json");
-const logger = require('pino')();
 
+// Logging
+const loggerOptions = {
+    prettyPrint: {
+        colorize: true,
+        ignore: 'pid,hostname',
+        translateTime: true
+    }
+}
+
+const logger = require('pino')(loggerOptions);
+
+// Create Discord client
 const client = new Discord.Client();
 
 // Utils
@@ -36,7 +47,7 @@ function checkAndUpdateChannelName(channel) {
         return activity ? getStatusByGameName(activity.name) : null;
     }).filter(value => value);
 
-    const defaultChannelName = "CoD/CS:GO | Go!";
+    const defaultChannelName = `Room ${config.CHANNELS.indexOf(channel.id) + 1}`;
     let finalChannelName = defaultChannelName;
     if (statuses.length) {
         const mostFrGame = mostFrequent(statuses);
@@ -45,7 +56,7 @@ function checkAndUpdateChannelName(channel) {
 
     if (finalChannelName == channel.name) return logger.info("Don't need to change the channel name!");
 
-    logger.info(`Expected final channel name is ${finalChannelName}`)
+    logger.info(`Expected final channel name is ${finalChannelName}`);
     if (finalChannelName != defaultChannelName) {
         client.user.setActivity(`Jersey Jam ${finalChannelName}!`);
     } else {
@@ -60,29 +71,40 @@ function checkAndUpdateChannelName(channel) {
 
 // Handlers
 client.on("voiceStateUpdate", (oldState, newState) => {
-    const states = [oldState, newState].filter(state => config.CHANNELS.includes(state.channelID || ""));
+    const states = [oldState, newState];
+    const ourChannels = states.filter(state => config.CHANNELS.includes(state.channelID || ""));
 
-    if (states.length == 1) {
-        const state = states.pop()
-        logger.info(`On voiceStateUpdate - ${state.member.user.username} (${state.member.id})`)
-        checkAndUpdateChannelName(state.channel);
-    }
+    if (!ourChannels.length) return;
+
+    for (const {member, channel} of states) {
+        if (!channel) continue;
+        logger.info(`On voiceStateUpdate - ${member.user.username} (${member.id})`);
+        checkAndUpdateChannelName(channel);
+    };
 });
 
 
-client.on("presenceUpdate", (_, state) => {
-    if (
-        config.CHANNELS.includes(state.member.voice.channelID || "")   // Only in the desired channel
-        || !state.clientStatus.desktop                      // Only for desktop status changes
-        || !['online', 'offline'].includes(state.status)    // Filter `idle` and `dnd` status
+client.on("presenceUpdate", (oldState, newState) => {
+    const states = [oldState, newState];
+    const ourChannels = states.filter(state => state && config.CHANNELS.includes(state.member.voice.channelID || ""));
+
+    if (!ourChannels.length
+        || !oldState.clientStatus.desktop 
+	|| !newState.clientStatus.desktop                   // Only for desktop status changes
+        || !['online', 'offline'].includes(oldState.status)    // Filter `idle` and `dnd` status
+        || !(oldState.activities.length || newState.activities.length)
     ) return;
-    logger.info(`On presenceUpdate of ${state.member.user.username} (${state.userID})`)
-    checkAndUpdateChannelName(state.member.voice.channel)
+    
+    for (const {member} of states) {
+        if (!member) continue;
+        logger.info(`On presenceUpdate of ${member.user.username} (${member.user.id})`);
+        checkAndUpdateChannelName(member.voice.channel);
+    };
 });
 
 
 client.on("ready", () => {
-    logger.info('Bot started!')
+    logger.info('Bot started!');
     client.user.setActivity('Jersey Jam is waiting to play!');
 });
 
