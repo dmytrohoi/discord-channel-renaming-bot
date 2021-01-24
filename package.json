@@ -1,18 +1,29 @@
 {
-  "name": "jj-helper-discord-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "discord-channel-renaming-bot",
+  "version": "1.1.0",
+  "description": "Discord bot adds game name (using activity) to voice channel name.",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=production node app.js",
+    "debug": "node app.js",
+    "test": "NODE_ENV=test tap --no-coverage"
   },
   "author": "Dmytro Hoi",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "dotenv-flow": "^3.2.0",
     "pino": "^6.11.0",
     "pino-pretty": "^4.3.0"
   },
-  "engines" : { "node" : ">=10.19.0" }
+  "engines": {
+    "node": ">=10.19.0"
+  },
+  "devDependencies": {
+    "tap": "^14.11.0"
+  },
+  "tap":{
+    "coverage-map": "./tests/map.js"
+  }
 }
