@@ -16,7 +16,7 @@ function voiceStateHandler(oldState, newState) {
 
     if (!ourChannels.length) return;
 
-    for (const {member, channel} of states) {
+    for (const {member, channel} of ourChannels) {
         if (!channel) continue;
         logger.info(`On voiceStateUpdate - ${member.user.username} (${member.id})`);
         const channelName = getNewChannelName(channel);
@@ -42,7 +42,7 @@ function presenceUpdateHandler(oldState, newState) {
         || !(oldState.activities.length || newState.activities.length)
     ) return;
 
-    for (const {member} of states) {
+    for (const {member} of ourChannels) {
         if (!member || !member.voice.channel) continue;
         logger.info(`On presenceUpdate of ${member.user.username} (${member.user.id})`);
         const channelName = getNewChannelName(member.voice.channel);
