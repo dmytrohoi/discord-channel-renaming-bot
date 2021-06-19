@@ -1,5 +1,7 @@
 // Load .env file to process.env
-require('dotenv-flow').config();
+import dotenv from 'dotenv-flow';
+
+dotenv.config();
 
 // Logging options
 const loggerOptions = {
@@ -19,7 +21,7 @@ CHANNELS.push(...(process.env.CHANNELS || String()).split(',').filter(v => v))
 /// `useDefaultGameName` option:
 // true - use `gameShortcuts` as shortcuts and any game name for channel name
 // false - ignore any other games and only use the described in `gameShortcuts`
-const useDefaultGameName = false;
+const useDefaultGameName = true;
 
 // Games shortcuts OR selected games
 const gameShortcuts = {
@@ -41,8 +43,9 @@ const defaultChannelName = "Room #";
 const addDefaultChannelNameCounter = true;
 // === === === === === === === === === === === ===
 
-module.exports = {
+
+export {
     loggerOptions, useDefaultGameName, gameShortcuts,
     channelNamePrefix, channelNameSuffix, addPlayersCounter,
-    defaultChannelName, addDefaultChannelNameCounter, CHANNELS
-};
+    defaultChannelName, addDefaultChannelNameCounter, CHANNELS,
+}

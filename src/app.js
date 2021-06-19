@@ -1,17 +1,15 @@
 #!/usr/bin node
-const Discord = require('discord.js');
+import Discord from 'discord.js';
+
+// Utils
+import { logger } from './utils.js';
+
+import voiceStateHandler from './handlers/voiceStateHandler.js';
+import presenceUpdateHandler from './handlers/presenceUpdateHandler.js';
+
 
 // Create Discord client
 const client = new Discord.Client();
-
-// Utils
-const {logger} = require('./src/utils');
-
-const {
-    voiceStateHandler,
-    presenceUpdateHandler
-} = require('./src/handlers');
-
 
 // Handlers
 client.on("voiceStateUpdate", voiceStateHandler);

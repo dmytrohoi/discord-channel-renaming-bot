@@ -1,20 +1,25 @@
 // Import settings
-const {
+import {
     channelNamePrefix, gameShortcuts, channelNameSuffix, defaultChannelName
-} = require('../settings');
+} from '../src/settings';
+
+import {
+    setNewChannelName, getNewChannelName
+} from '../src/helpers/channelRenaming';
+
 
 // Mock
 class Channel {
     constructor(id, name, members) {
         this.id = id;
         this.name = name;
-        this.members = {array() {return members}};
+        this.members = { array() { return members } };
     }
 
     setName(name) {
         const _this = this;
         const promise = new Promise(
-            function(resolve, _) {
+            function (resolve, _) {
                 _this.name = name;
                 resolve(_this);
             }
@@ -25,39 +30,34 @@ class Channel {
 
 class Member {
     constructor() {
-        this.presence = {activities: []};
+        this.presence = { activities: [] };
     }
 
     add(activity) {
-        this.presence.activities.push({name: activity})
+        this.presence.activities.push({ name: activity })
         return this
     }
 }
 
 
 // Tests
-const tap = require('tap');
-
-const {setNewChannelName, getNewChannelName} = require('../src/processing');
-
-
-tap.test("Test setNewChannelName() method", async (test) => {
+test("Test setNewChannelName() method", (test) => {
     const testCases = [
-        {oldName: "", newName: "test"},
-        {oldName: "test", newName: "new"},
-        {oldName: "test", newName: "test"},
+        { oldName: "", newName: "test" },
+        { oldName: "test", newName: "new" },
+        { oldName: "test", newName: "test" },
     ];
 
-    for (const {oldName, newName} of testCases) {
+    for (const { oldName, newName } of testCases) {
         const channel = new Channel("1", oldName, []);
-        test.equivalent(channel.name, oldName, `Old channel name: "${oldName}"`);
+        except(channel.name).toBe(oldName);
         setNewChannelName(channel, newName);
-        test.equivalent(channel.name, newName, `New channel name: "${newName}"`);
+        except(channel.name).toBe(newName);
     };
 });
 
 
-tap.test("Test getNewChannelName() method", async (test) => {
+test("Test getNewChannelName() method", () => {
     const gameExample = "Counter-Strike: Global Offensive";
 
     // Shortcuts
@@ -65,7 +65,7 @@ tap.test("Test getNewChannelName() method", async (test) => {
     const newGamer = () => newEmptyUser().add(gameExample);
     const newNotGamer = () => newEmptyUser().add("Not a Game");
     const createExpectedName = (game, count, all) => `${channelNamePrefix}${gameShortcuts[game]}${channelNameSuffix} (${count} / ${all})`;
-    const createExpectedDefaultName = (channelID=1) => `${defaultChannelName}${channelID}`;
+    const createExpectedDefaultName = (channelID = 1) => `${defaultChannelName}${channelID}`;
 
     // Test data
     const testCases = [
@@ -117,11 +117,9 @@ tap.test("Test getNewChannelName() method", async (test) => {
         },
     ];
 
-    for (const {members, expectedName, channelID="1"} of testCases) {
-        test.equivalent(
-            getNewChannelName(new Channel(channelID, "", members)),
-            expectedName,
-            `New name for channel: "${expectedName}"`
-        );
+    for (const { members, expectedName, channelID = "1" } of testCases) {
+        except(
+            getNewChannelName(new Channel(channelID, "", members))
+        ).toBe(expectedName)
     }
 });

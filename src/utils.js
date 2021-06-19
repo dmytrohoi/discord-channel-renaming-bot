@@ -1,6 +1,8 @@
 
-const {loggerOptions} = require('../settings');
-const logger = require('pino')(loggerOptions);
+import { loggerOptions } from './settings.js';
+import pino from 'pino';
+
+const logger = pino(loggerOptions);
 
 
 /**
@@ -14,6 +16,6 @@ function mostFrequent(array) {
 }
 
 
-module.exports = {
+export {
     mostFrequent, logger
 };

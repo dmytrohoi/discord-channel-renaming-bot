@@ -1,7 +1,11 @@
-const {VoiceChannel} = require('discord.js');
-const {mostFrequent, logger} = require('./utils');
+import { VoiceChannel } from 'discord.js';
+import { mostFrequent, logger } from '../utils.js';
 
-const settings = require('../settings');
+import {
+    gameShortcuts, useDefaultGameName, defaultChannelName,
+    addDefaultChannelNameCounter, CHANNELS, channelNamePrefix,
+    channelNameSuffix, addPlayersCounter
+} from '../settings.js';
 
 
 /**
@@ -11,27 +15,26 @@ const settings = require('../settings');
  */
 function getNewChannelName(channel) {
     const members = channel.members.array();
-    const statuses = members.reduce((acc, member) => {
+    const statuses = members.map((member) => {
         const activity = member.presence.activities[0];
-        if (!activity) return acc;
-        const gameName = settings.gameShortcuts[activity.name || ""]
-            || (settings.useDefaultGameName ? activity.name : null);
-        if (gameName) acc.push(gameName);
-        return acc;
-    }, []);
+        if (!activity || !activity.name) return null;
+
+        return gameShortcuts[activity.name]
+            || (useDefaultGameName ? activity.name : null);
+    }).filter(v => Boolean(v));
 
     if (!statuses.length) {
-        return settings.defaultChannelName
-        + (settings.addDefaultChannelNameCounter
-           ? `${settings.CHANNELS.indexOf(channel.id) + 1}`
-           : '');
+        return defaultChannelName
+            + (addDefaultChannelNameCounter
+                ? `${CHANNELS.indexOf(channel.id) + 1}`
+                : '');
     };
 
     const [currentGameName, currentPlayers] = mostFrequent(statuses);
-    return settings.channelNamePrefix
+    return channelNamePrefix
         + currentGameName
-        + settings.channelNameSuffix
-        + (settings.addPlayersCounter ? ` (${currentPlayers} / ${members.length})` : '');
+        + channelNameSuffix
+        + (addPlayersCounter ? ` (${currentPlayers} / ${members.length})` : '');
 };
 
 
@@ -49,6 +52,7 @@ function setNewChannelName(channel, newName) {
 }
 
 
-module.exports = {
-    getNewChannelName, setNewChannelName
+export {
+    getNewChannelName,
+    setNewChannelName
 }
